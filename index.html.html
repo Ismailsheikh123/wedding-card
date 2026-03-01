@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nikah Mubarak — Suhail & Tarannum</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Amiri:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #C9A84C;
+    --gold-light: #F0D080;
+    --gold-dark: #8B6914;
+    --emerald: #1A6B4A;
+    --emerald-light: #2ECC71;
+    --black: #050505;
+    --dark: #0A0A0A;
+    --card-bg: rgba(10, 10, 10, 0.85);
+  }
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--black);
+  color: #e8d5a3;
+  font-family: 'Cormorant Garamond', serif;
+  overflow-x: hidden;
+  cursor: default;
+}
+
+#particleCanvas {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+#introScreen {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: #000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 1.2s ease;
+}
+
+#introScreen.fade-out {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.intro-bismillah {
+  font-family: 'Amiri', serif;
+  font-size: clamp(1.2rem, 3vw, 2rem);
+  color: var(--gold-light);
+  opacity: 0;
+  animation: fadeInUp 1.5s ease 0.5s forwards;
+  text-shadow: 0 0 30px rgba(201,168,76,0.6);
+  margin-bottom: 1rem;
+}
+
+.intro-title {
+  font-family: 'Amiri', serif;
+  font-size: clamp(2.5rem, 8vw, 5rem);
+  background: linear-gradient(135deg, #8B6914, #F0D080, #C9A84C, #F0D080, #8B6914);
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: fadeInUp 1.5s ease 1s forwards, goldShimmer 3s ease infinite;
+  opacity: 0;
+  text-shadow: none;
+  filter: drop-shadow(0 0 20px rgba(201,168,76,0.5));
+  text-align: center;
+}
+
+.intro-subtitle {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: clamp(0.9rem, 2vw, 1.3rem);
+  color: var(--gold);
+  opacity: 0;
+  animation: fadeInUp 1.5s ease 1.8s forwards;
+  letter-spacing: 0.3em;
+  margin-top: 0.5rem;
+}
+
+#envelopeContainer {
+  margin-top: 3rem;
+  opacity: 0;
+  animation: fadeInUp 1.5s ease 2.8s forwards;
+  cursor: pointer;
+}
+
+.envelope-wrap {
+  position: relative;
+  width: 280px;
+  height: 190px;
+  filter: drop-shadow(0 0 30px rgba(201,168,76,0.4));
+  transition: filter 0.3s ease;
+}
+
+.envelope-wrap:hover {
+  filter: drop-shadow(0 0 50px rgba(201,168,76,0.7));
+}
+
+.env-body {
+  position: absolute;
+  bottom: 0;
+  width: 280px;
+  height: 150px;
+  background: linear-gradient(180deg, #1a1208 0%, #0f0a04 100%);
+  border: 1px solid var(--gold-dark);
+  border-radius: 0 0 8px 8px;
+}
+
+.env-flap {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  border-left: 140px solid transparent;
+  border-right: 140px solid transparent;
+  border-top: 100px solid #1c1508;
+  transform-origin: top center;
+  transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+  z-index: 2;
+}
+
+.env-flap.open {
+  transform: rotateX(180deg);
+}
+
+.env-bottom-flap {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  border-left: 140px solid transparent;
+  border-right: 140px solid transparent;
+  border-bottom: 75px solid #0d0903;
+}
+
+.env-side-left {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0; height: 0;
+  border-bottom: 150px solid #141008;
+  border-right: 140px solid transparent;
+}
+
+.env-side-right {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 0; height: 0;
+  border-bottom: 150px solid #141008;
+  border-left: 140px solid transparent;
+}
+
+.env-seal {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 50px;
+  height: 50px;
+  border: 2px solid var(--gold);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #0a0800;
+  z-index: 3;
+  box-shadow: 0 0 15px rgba(201,168,76,0.4), inset 0 0 10px rgba(201,168,76,0.1);
+  font-size: 1.4rem;
+  color: var(--gold);
+}
+
+.env-hint {
+  color: var(--gold);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.85rem;
+  letter-spacing: 0.2em;
+  margin-top: 1.2rem;
+  text-align: center;
+  opacity: 0.7;
+  animation: pulse 2s ease infinite;
+}
+
+#mainInvitation {
+  display: none;
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+}
+
+#mainInvitation.reveal {
+  display: block;
+  animation: revealCard 1.2s ease forwards;
+}
+
+.geo-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  opacity: 0.04;
+  background-image:
+    repeating-linear-gradient(45deg, var(--gold) 0, var(--gold) 1px, transparent 0, transparent 50%),
+    repeating-linear-gradient(-45deg, var(--gold) 0, var(--gold) 1px, transparent 0, transparent 50%);
+  background-size: 40px 40px;
+  pointer-events: none;
+}
+
+#muteBtn {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 999;
+  background: rgba(0,0,0,0.7);
+  border: 1px solid var(--gold-dark);
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1.2rem;
+  transition: all 0.3s ease;
+  color: var(--gold);
+  backdrop-filter: blur(10px);
+}
+
+#muteBtn:hover {
+  border-color: var(--gold);
+  box-shadow: 0 0 15px rgba(201,168,76,0.3);
+}
+
+.invitation-inner {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 2rem 1rem 4rem;
+  position: relative;
+  z-index: 1;
+}
+
+.header-section {
+  text-align: center;
+  padding: 4rem 1rem 2rem;
+  animation: fadeInUp 1s ease 0.2s both;
+}
+
+.bismillah-text {
+  font-family: 'Amiri', serif;
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  background: linear-gradient(135deg, #8B6914, #F0D080, #C9A84C);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 15px rgba(201,168,76,0.4));
+  display: block;
+  margin-bottom: 2rem;
+  line-height: 1.8;
+}
+
+.geo-divider {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 1.5rem 0;
+  justify-content: center;
+}
+
+.divider-line {
+  flex: 1;
+  max-width: 120px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+}
+
+.divider-gem {
+  width: 10px;
+  height: 10px;
+  background: var(--gold);
+  transform: rotate(45deg);
+  box-shadow: 0 0 10px rgba(201,168,76,0.6);
+}
+
+.divider-star {
+  color: var(--gold);
+  font-size: 1rem;
+}
+
+.glass-card {
+  background: rgba(12, 10, 5, 0.75);
+  border: 1px solid rgba(201,168,76,0.2);
+  border-radius: 16px;
+  padding: 2.5rem 2rem;
+  margin: 1.5rem 0;
+  backdrop-filter: blur(20px);
+  box-shadow:
+    0 0 40px rgba(201,168,76,0.05),
+    inset 0 1px 0 rgba(201,168,76,0.1);
+  position: relative;
+  overflow: hidden;
+  animation: fadeInUp 1s ease both;
+}
+
+.glass-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(201,168,76,0.4), transparent);
+}
+
+.glass-card::after {
+  content: '';
+  position: absolute;
+  top: -60px;
+  right: -60px;
+  width: 150px;
+  height: 150px;
+  background: radial-gradient(circle, rgba(26,107,74,0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.corner-ornament {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  color: var(--gold-dark);
+  font-size: 1.5rem;
+  opacity: 0.5;
+}
+
+.corner-ornament.tl { top: 8px; left: 8px; }
+.corner-ornament.tr { top: 8px; right: 8px; transform: scaleX(-1); }
+.corner-ornament.bl { bottom: 8px; left: 8px; transform: scaleY(-1); }
+.corner-ornament.br { bottom: 8px; right: 8px; transform: scale(-1,-1); }
+
+.couple-section {
+  text-align: center;
+  padding: 1.5rem 0;
+}
+
+.couple-intro {
+  font-size: 0.9rem;
+  letter-spacing: 0.3em;
+  color: rgba(201,168,76,0.6);
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+
+.groom-name, .bride-name {
+  font-family: 'Amiri', serif;
+  font-size: clamp(2.5rem, 7vw, 4rem);
+  background: linear-gradient(135deg, #8B6914 0%, #F0D080 40%, #C9A84C 60%, #F0D080 80%, #8B6914 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: goldShimmer 4s ease infinite;
+  filter: drop-shadow(0 0 15px rgba(201,168,76,0.3));
+  line-height: 1.2;
+  display: block;
+}
+
+.name-connector {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 1.1rem;
+  color: var(--emerald-light);
+  opacity: 0.8;
+  display: block;
+  margin: 0.5rem 0;
+  letter-spacing: 0.2em;
+}
+
+.invite-copy {
+  text-align: center;
+  font-size: 1.05rem;
+  line-height: 2;
+  color: rgba(232,213,163,0.75);
+  font-style: italic;
+  font-weight: 300;
+  padding: 0.5rem 1rem;
+}
+
+.nikah-badge {
+  display: inline-block;
+  font-family: 'Cinzel Decorative', serif;
+  font-size: clamp(1rem, 2.5vw, 1.4rem);
+  letter-spacing: 0.2em;
+  background: linear-gradient(135deg, var(--gold-dark), var(--gold-light), var(--gold-dark));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin: 1rem 0;
+}
+
+.event-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid rgba(201,168,76,0.1);
+}
+
+.event-row:last-child { border-bottom: none; }
+
+.event-icon {
+  width: 42px;
+  height: 42px;
+  border: 1px solid rgba(201,168,76,0.3);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  background: rgba(201,168,76,0.05);
+  flex-shrink: 0;
+  color: var(--gold);
+}
+
+.event-label {
+  font-size: 0.75rem;
+  letter-spacing: 0.25em;
+  color: var(--gold);
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+.event-value {
+  font-size: 1.15rem;
+  color: #e8d5a3;
+  font-weight: 300;
+}
+
+.date-display {
+  text-align: center;
+  padding: 1rem 0;
+}
+
+.date-day {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: clamp(3rem, 10vw, 5rem);
+  background: linear-gradient(135deg, #8B6914, #F0D080, #C9A84C);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 20px rgba(201,168,76,0.3));
+  line-height: 1;
+}
+
+.date-month-year {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.2rem;
+  letter-spacing: 0.3em;
+  color: var(--gold);
+  opacity: 0.8;
+  margin-top: 0.3rem;
+}
+
+.date-weekday {
+  font-size: 0.85rem;
+  letter-spacing: 0.3em;
+  color: var(--emerald-light);
+  opacity: 0.7;
+  margin-top: 0.2rem;
+  text-transform: uppercase;
+}
+
+.countdown-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.countdown-block {
+  text-align: center;
+  background: rgba(201,168,76,0.05);
+  border: 1px solid rgba(201,168,76,0.15);
+  border-radius: 10px;
+  padding: 1rem 0.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.countdown-block::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+}
+
+.countdown-num {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: clamp(1.5rem, 5vw, 2.5rem);
+  background: linear-gradient(135deg, #C9A84C, #F0D080);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  display: block;
+  line-height: 1;
+}
+
+.countdown-label {
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  color: rgba(201,168,76,0.5);
+  text-transform: uppercase;
+  margin-top: 0.4rem;
+}
+
+.section-heading {
+  text-align: center;
+  font-family: 'Cinzel Decorative', serif;
+  font-size: clamp(0.85rem, 2vw, 1.1rem);
+  letter-spacing: 0.4em;
+  color: var(--gold);
+  margin-bottom: 1.5rem;
+  opacity: 0.9;
+}
+
+.venue-name {
+  font-family: 'Amiri', serif;
+  font-size: clamp(1.5rem, 4vw, 2.2rem);
+  text-align: center;
+  background: linear-gradient(135deg, #C9A84C, #F0D080, #C9A84C);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 0.75rem;
+}
+
+.venue-address {
+  text-align: center;
+  font-size: 1rem;
+  line-height: 1.9;
+  color: rgba(232,213,163,0.65);
+  font-style: italic;
+}
+
+/* Coordinates display */
+.venue-coords {
+  text-align: center;
+  font-size: 0.8rem;
+  letter-spacing: 0.18em;
+  color: rgba(201,168,76,0.45);
+  margin-top: 0.4rem;
+  font-family: 'Cormorant Garamond', serif;
+}
+
+.map-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  margin: 1.5rem auto 0;
+  padding: 0.85rem 2rem;
+  background: linear-gradient(135deg, #1a1005, #2a1e08);
+  border: 1px solid var(--gold-dark);
+  border-radius: 50px;
+  color: var(--gold-light);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1rem;
+  letter-spacing: 0.15em;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  max-width: 280px;
+  box-shadow: 0 0 20px rgba(201,168,76,0.1);
+}
+
+.map-btn:hover {
+  background: linear-gradient(135deg, #2a1e08, #3d2c0a);
+  border-color: var(--gold);
+  box-shadow: 0 0 30px rgba(201,168,76,0.25), inset 0 0 15px rgba(201,168,76,0.05);
+  transform: translateY(-2px);
+}
+
+.footer-section {
+  text-align: center;
+  padding: 2rem 1rem 3rem;
+  animation: fadeInUp 1s ease both;
+}
+
+.footer-dua {
+  font-family: 'Amiri', serif;
+  font-size: clamp(1.1rem, 3vw, 1.6rem);
+  color: rgba(201,168,76,0.7);
+  line-height: 2;
+  margin-bottom: 1rem;
+}
+
+.footer-sub {
+  font-size: 0.85rem;
+  letter-spacing: 0.2em;
+  color: rgba(201,168,76,0.35);
+  text-transform: uppercase;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes goldShimmer {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+@keyframes revealCard {
+  from { opacity: 0; transform: scale(0.95) translateY(20px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.float-anim { animation: float 4s ease infinite; }
+
+.reveal-on-scroll {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.9s ease, transform 0.9s ease;
+}
+
+.reveal-on-scroll.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.emerald-line {
+  display: block;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--emerald-light), transparent);
+  opacity: 0.3;
+  margin: 1rem 0;
+}
+
+.geo-ornament {
+  display: block;
+  margin: 0 auto;
+  width: 80px;
+  height: 80px;
+  opacity: 0.6;
+}
+</style>
+</head>
+<body>
+
+<canvas id="particleCanvas"></canvas>
+<div class="geo-bg"></div>
+<button id="muteBtn" title="Toggle Music" style="display:none;">🔊</button>
+
+<!-- INTRO SCREEN -->
+<div id="introScreen">
+  <span class="intro-bismillah">بِسْمِ ٱللَّٰهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ</span>
+  <div class="intro-title">نكاح مبارك</div>
+  <div class="intro-subtitle">Nikah Mubarak</div>
+
+  <div id="envelopeContainer" onclick="openEnvelope()">
+    <div class="envelope-wrap float-anim">
+      <div class="env-flap" id="envFlap"></div>
+      <div class="env-side-left"></div>
+      <div class="env-side-right"></div>
+      <div class="env-bottom-flap"></div>
+      <div class="env-body"></div>
+      <div class="env-seal">✦</div>
+    </div>
+    <div class="env-hint">✦ &nbsp; Tap to open your invitation &nbsp; ✦</div>
+  </div>
+</div>
+
+<!-- MAIN INVITATION -->
+<div id="mainInvitation">
+  <div class="invitation-inner">
+
+    <!-- HEADER -->
+    <div class="header-section">
+      <span class="bismillah-text">بِسْمِ ٱللَّٰهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ</span>
+
+      <svg class="geo-ornament" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <polygon points="50,5 61,35 95,35 68,57 79,91 50,70 21,91 32,57 5,35 39,35" fill="none" stroke="#C9A84C" stroke-width="1.5" opacity="0.8"/>
+        <polygon points="50,15 59,38 84,38 64,53 72,78 50,63 28,78 36,53 16,38 41,38" fill="none" stroke="#C9A84C" stroke-width="0.8" opacity="0.4"/>
+        <circle cx="50" cy="50" r="8" fill="none" stroke="#C9A84C" stroke-width="1" opacity="0.6"/>
+        <circle cx="50" cy="50" r="3" fill="#C9A84C" opacity="0.8"/>
+      </svg>
+
+      <div class="geo-divider" style="margin-top:1rem;">
+        <div class="divider-line"></div>
+        <div class="divider-gem"></div>
+        <div class="divider-star">✦</div>
+        <div class="divider-gem"></div>
+        <div class="divider-line"></div>
+      </div>
+
+      <div class="nikah-badge">— Nikah Mubarak —</div>
+
+      <div class="geo-divider">
+        <div class="divider-line"></div>
+        <div class="divider-gem"></div>
+        <div class="divider-star">✦</div>
+        <div class="divider-gem"></div>
+        <div class="divider-line"></div>
+      </div>
+    </div>
+
+    <!-- COUPLE NAMES -->
+    <div class="glass-card reveal-on-scroll" style="animation-delay:0.1s">
+      <div class="corner-ornament tl">❧</div>
+      <div class="corner-ornament tr">❧</div>
+      <div class="corner-ornament bl">❧</div>
+      <div class="corner-ornament br">❧</div>
+      <div class="couple-section">
+        <p class="couple-intro">With the blessings of Allah ﷻ</p>
+        <span class="groom-name">Suhail Malik</span>
+        <span class="name-connector">✦ weds ✦</span>
+        <span class="bride-name">Tarannum</span>
+        <span class="emerald-line" style="margin-top:1.5rem;"></span>
+        <p class="invite-copy" style="margin-top:1rem;">
+          Together with their families, joyfully invite you to celebrate their
+          <br>union in sacred matrimony
+        </p>
+      </div>
+    </div>
+
+    <!-- DATE -->
+    <div class="glass-card reveal-on-scroll" style="animation-delay:0.2s">
+      <div class="date-display">
+        <div class="date-weekday">Sunday</div>
+        <div class="date-day">29</div>
+        <div class="date-month-year">MARCH · 2026</div>
+      </div>
+
+      <div class="geo-divider" style="margin:1.5rem 0 0.5rem;">
+        <div class="divider-line"></div>
+        <div class="divider-gem"></div>
+        <div class="divider-line"></div>
+      </div>
+
+      <p style="text-align:center; font-size:0.8rem; letter-spacing:0.25em; color:rgba(201,168,76,0.5); text-transform:uppercase; margin-bottom:0.5rem;">Counting down to the blessed day</p>
+
+      <div class="countdown-grid">
+        <div class="countdown-block">
+          <span class="countdown-num" id="cdDays">--</span>
+          <span class="countdown-label">Days</span>
+        </div>
+        <div class="countdown-block">
+          <span class="countdown-num" id="cdHours">--</span>
+          <span class="countdown-label">Hours</span>
+        </div>
+        <div class="countdown-block">
+          <span class="countdown-num" id="cdMins">--</span>
+          <span class="countdown-label">Mins</span>
+        </div>
+        <div class="countdown-block">
+          <span class="countdown-num" id="cdSecs">--</span>
+          <span class="countdown-label">Secs</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- EVENT DETAILS -->
+    <div class="glass-card reveal-on-scroll" style="animation-delay:0.3s">
+      <div class="section-heading">◈ &nbsp; EVENT DETAILS &nbsp; ◈</div>
+
+      <div class="event-row">
+        <div class="event-icon">🌙</div>
+        <div>
+          <div class="event-label">Occasion</div>
+          <div class="event-value">Nikah Ceremony</div>
+        </div>
+      </div>
+
+      <div class="event-row">
+        <div class="event-icon">🍽</div>
+        <div>
+          <div class="event-label">Dinner</div>
+          <div class="event-value">7:00 PM onwards</div>
+        </div>
+      </div>
+
+      <div class="event-row">
+        <div class="event-icon">✨</div>
+        <div>
+          <div class="event-label">Rukhsati</div>
+          <div class="event-value">11:00 PM</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VENUE -->
+    <div class="glass-card reveal-on-scroll" style="animation-delay:0.4s">
+      <div class="section-heading">◈ &nbsp; VENUE &nbsp; ◈</div>
+      <div class="venue-name">New Good Luck Farm House</div>
+      <div class="venue-address">
+        Charthawal Road, Muradiya Madarsa<br>
+        Kaali Nadi, Muzaffarnagar
+      </div>
+      <!-- Coordinates display -->
+      <div class="venue-coords">📍 29°28′35.9″N &nbsp;77°40′22.2″E</div>
+      <div style="text-align:center;">
+        <!-- Google Maps link using exact coordinates: 29.476639, 77.672833 -->
+        <a href="https://www.google.com/maps?q=29.476639,77.672833" target="_blank" class="map-btn">
+          <span>📍</span> Open in Google Maps
+        </a>
+      </div>
+    </div>
+
+    <!-- FOOTER DUA -->
+    <div class="footer-section reveal-on-scroll">
+      <div class="geo-divider" style="margin-bottom:1.5rem;">
+        <div class="divider-line" style="max-width:80px;"></div>
+        <div class="divider-gem"></div>
+        <div class="divider-star">✦</div>
+        <div class="divider-gem"></div>
+        <div class="divider-line" style="max-width:80px;"></div>
+      </div>
+
+      <svg class="geo-ornament" viewBox="0 0 100 100" style="opacity:0.35; margin-bottom:1rem;">
+        <polygon points="50,10 63,40 95,40 70,60 80,90 50,72 20,90 30,60 5,40 37,40" fill="none" stroke="#C9A84C" stroke-width="1.5"/>
+        <circle cx="50" cy="50" r="15" fill="none" stroke="#C9A84C" stroke-width="0.8" stroke-dasharray="4 4"/>
+        <circle cx="50" cy="50" r="4" fill="#C9A84C" opacity="0.6"/>
+      </svg>
+
+      <div class="footer-dua">
+        بَارَكَ اللّٰهُ لَكُمَا وَبَارَكَ عَلَيْكُمَا<br>وَجَمَعَ بَيْنَكُمَا فِي خَيْرٍ
+      </div>
+      <div class="footer-sub">May Allah bless you both and bring you together in goodness</div>
+
+      <div class="geo-divider" style="margin-top:2rem;">
+        <div class="divider-line"></div>
+        <div class="divider-gem"></div>
+        <div class="divider-star">✦</div>
+        <div class="divider-gem"></div>
+        <div class="divider-line"></div>
+      </div>
+
+      <p style="margin-top:1.5rem; font-size:0.75rem; letter-spacing:0.25em; color:rgba(201,168,76,0.25); text-transform:uppercase;">
+        Suhail Malik &nbsp;✦&nbsp; Tarannum &nbsp;·&nbsp; 29 March 2026
+      </p>
+    </div>
+
+  </div>
+</div>
+
+<audio id="bgMusic" loop></audio>
+
+<script>
+// ===== PARTICLES =====
+const canvas = document.getElementById('particleCanvas');
+const ctx = canvas.getContext('2d');
+let particles = [];
+
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+class Particle {
+  constructor() { this.reset(); }
+  reset() {
+    this.x = Math.random() * canvas.width;
+    this.y = Math.random() * canvas.height;
+    this.size = Math.random() * 2 + 0.5;
+    this.speedX = (Math.random() - 0.5) * 0.3;
+    this.speedY = -Math.random() * 0.5 - 0.2;
+    this.opacity = Math.random() * 0.6 + 0.1;
+    this.life = Math.random();
+    this.maxLife = Math.random() * 0.02 + 0.003;
+    this.gold = Math.random() > 0.5;
+  }
+  update() {
+    this.x += this.speedX;
+    this.y += this.speedY;
+    this.life -= this.maxLife;
+    if (this.life <= 0 || this.y < 0) this.reset();
+  }
+  draw() {
+    ctx.save();
+    ctx.globalAlpha = this.opacity * Math.max(0, this.life * 3);
+    ctx.fillStyle = this.gold
+      ? `rgba(201,168,76,${this.opacity})`
+      : `rgba(26,107,74,${this.opacity * 0.6})`;
+    ctx.shadowBlur = 6;
+    ctx.shadowColor = this.gold ? 'rgba(201,168,76,0.8)' : 'rgba(26,107,74,0.8)';
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+}
+
+for (let i = 0; i < 120; i++) particles.push(new Particle());
+
+function animateParticles() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  particles.forEach(p => { p.update(); p.draw(); });
+  requestAnimationFrame(animateParticles);
+}
+animateParticles();
+
+// ===== MUSIC =====
+let audioCtx = null;
+let gainNode = null;
+let isMuted = false;
+let musicStarted = false;
+
+function createAmbientMusic() {
+  if (musicStarted) return;
+  musicStarted = true;
+
+  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  gainNode = audioCtx.createGain();
+  gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+  gainNode.gain.linearRampToValueAtTime(0.08, audioCtx.currentTime + 3);
+  gainNode.connect(audioCtx.destination);
+
+  const notes = [220, 277.18, 329.63, 415.3, 220, 174.61];
+  const durations = [2, 2, 2, 2, 4, 2];
+  let time = audioCtx.currentTime;
+
+  function playLoop() {
+    notes.forEach((freq, i) => {
+      const osc = audioCtx.createOscillator();
+      const env = audioCtx.createGain();
+      osc.connect(env);
+      env.connect(gainNode);
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, time);
+      const dur = durations[i];
+      env.gain.setValueAtTime(0, time);
+      env.gain.linearRampToValueAtTime(0.4, time + 0.3);
+      env.gain.exponentialRampToValueAtTime(0.001, time + dur);
+      osc.start(time);
+      osc.stop(time + dur);
+      time += dur * 0.9;
+    });
+    const harmony = [329.63, 415.3, 493.88, 369.99];
+    let htime = audioCtx.currentTime + 1;
+    harmony.forEach((freq, i) => {
+      const osc2 = audioCtx.createOscillator();
+      const env2 = audioCtx.createGain();
+      osc2.connect(env2);
+      env2.connect(gainNode);
+      osc2.type = 'triangle';
+      osc2.frequency.setValueAtTime(freq, htime);
+      env2.gain.setValueAtTime(0, htime);
+      env2.gain.linearRampToValueAtTime(0.15, htime + 0.5);
+      env2.gain.exponentialRampToValueAtTime(0.001, htime + 3);
+      osc2.start(htime);
+      osc2.stop(htime + 3);
+      htime += 3;
+    });
+  }
+
+  playLoop();
+  setInterval(playLoop, 16000);
+  document.getElementById('muteBtn').style.display = 'flex';
+}
+
+document.getElementById('muteBtn').addEventListener('click', () => {
+  if (!gainNode) return;
+  isMuted = !isMuted;
+  gainNode.gain.setTargetAtTime(isMuted ? 0 : 0.08, audioCtx.currentTime, 0.3);
+  document.getElementById('muteBtn').textContent = isMuted ? '🔇' : '🔊';
+});
+
+// ===== ENVELOPE OPEN =====
+function openEnvelope() {
+  const flap = document.getElementById('envFlap');
+  flap.classList.add('open');
+  createAmbientMusic();
+
+  setTimeout(() => {
+    const intro = document.getElementById('introScreen');
+    intro.classList.add('fade-out');
+    setTimeout(() => {
+      intro.style.display = 'none';
+      const main = document.getElementById('mainInvitation');
+      main.classList.add('reveal');
+      initScrollReveal();
+      startCountdown();
+    }, 1200);
+  }, 800);
+}
+
+// ===== COUNTDOWN =====
+function startCountdown() {
+  const target = new Date('2026-03-29T19:00:00');
+
+  function update() {
+    const now = new Date();
+    const diff = target - now;
+    if (diff <= 0) {
+      ['cdDays','cdHours','cdMins','cdSecs'].forEach(id => {
+        document.getElementById(id).textContent = '00';
+      });
+      return;
+    }
+    const d = Math.floor(diff / 86400000);
+    const h = Math.floor((diff % 86400000) / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    const s = Math.floor((diff % 60000) / 1000);
+    document.getElementById('cdDays').textContent = String(d).padStart(2,'0');
+    document.getElementById('cdHours').textContent = String(h).padStart(2,'0');
+    document.getElementById('cdMins').textContent = String(m).padStart(2,'0');
+    document.getElementById('cdSecs').textContent = String(s).padStart(2,'0');
+  }
+  update();
+  setInterval(update, 1000);
+}
+
+// ===== SCROLL REVEAL =====
+function initScrollReveal() {
+  const elements = document.querySelectorAll('.reveal-on-scroll');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  elements.forEach((el, i) => {
+    el.style.transitionDelay = `${i * 0.1}s`;
+    observer.observe(el);
+  });
+
+  setTimeout(() => {
+    elements.forEach(el => {
+      const rect = el.getBoundingClientRect();
+      if (rect.top < window.innerHeight) el.classList.add('visible');
+    });
+  }, 100);
+}
+</script>
+
+</body>
+</html>
